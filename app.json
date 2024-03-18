@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "DiggiFridge",
-    "slug": "DiggiFridge",
+    "slug": "diggifridge",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -25,6 +25,15 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "af73086a-77b3-4fb1-93f0-538ab55ac19f"
+      }
+    },
+    "owner": "torsve"
   }
 }
