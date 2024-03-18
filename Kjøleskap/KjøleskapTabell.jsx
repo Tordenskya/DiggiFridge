@@ -54,8 +54,7 @@ export function FlyttTilKjøleskap({handleliste, kjøleskap, oppdaterUtløpsdato
                     kjøleskap[i].produkt[produktLikeIndeks].produktAntall += parseInt(handleliste[h].produktAntall, 10);
                     kjøleskap[i].antall++;
                   } else {
-                    oppdaterUtløpsdatoMap(handleliste[h].uformatertUtløpsdato, kjøleskap[i].produkt);
-                    sendPlanlagdNotifikasjon(handleliste[h].uformatertUtløpsdato, kjøleskap[i].produkt);
+                    sendPlanlagdNotifikasjon(handleliste[h].uformatertUtløpsdato, handleliste[h].produktNamn);
                     kjøleskap[i].antall++;
                     kjøleskap[i].produkt.push({
                       produktNamn: handleliste[h].produktNamn,

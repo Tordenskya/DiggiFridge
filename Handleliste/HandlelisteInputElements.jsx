@@ -34,11 +34,12 @@ export function RenderHandleliste({setKjøleskapDisplay, oppdaterUtløpsdatoMap,
 
   const HondterUtløpsdatoForandring = (event, indeks) => {
     const nyUtløpsdato = event.nativeEvent.timestamp;
-    const formatertUtløpsdato = new Date(nyUtløpsdato).toLocaleDateString();
+    const localFormatUtløpsdato = new Date(nyUtløpsdato).toLocaleDateString();
+    const isoFormatUtløpsdato = new Date(nyUtløpsdato).toISOString();
 
     setUtløpsdato(new Date(nyUtløpsdato));
-    handleliste[indeks].utløpsdato = formatertUtløpsdato;
-    handleliste[indeks].uformatertUtløpsdato = nyUtløpsdato;
+    handleliste[indeks].utløpsdato = localFormatUtløpsdato;
+    handleliste[indeks].uformatertUtløpsdato = isoFormatUtløpsdato;
   }
 
 

@@ -75,12 +75,15 @@ async function registerForPushNotificationsAsync() {
   return token;
 }
 
-const oppdaterUtløpsdatoMap = (uformatertUtløpsdato, produkt, isDelete = false) => {
-  const utløpsdato = typeof uformatertUtløpsdato === 'string' ? new Date(uformatertUtløpsdato) : uformatertUtløpsdato;
+const oppdaterUtløpsdatoMap = (utløpsdato, produkt, isDelete = false) => {
   console.log('oppdaterer utløpsdatoMap');
 
-  if (!utløpsdatoMap.has(utløpsdato)) {
-    utløpsdatoMap.set(utløpsdato, [produkt]);
+  if (!utløpsdatoMap.has(utløpsdato) ) {
+    utløpsdatoMap.set({
+      utløpsdato: utløpsdato,
+      produkt: produkt,
+    });
+    sendPlanlagdNotifikasjon(utløpsdato, [produkt]);
     console.log('Ny dato lagt til');
   } else {
     const produkter = utløpsdatoMap.get(utløpsdato);
@@ -98,13 +101,11 @@ const oppdaterUtløpsdatoMap = (uformatertUtløpsdato, produkt, isDelete = false
       console.log('Produkt pushet');
     }
   }
+  console.log(utløpsdatoMap);
 };
 
 const sendPlanlagdNotifikasjon = async (utløpsdato, produkter) => {
     console.log('Planlegger push notifikasjon');
-
-    const nyUtløpsdato = new Date(utløpsdato);
-    const formatertUtløpsdato = nyUtløpsdato.toLocaleDateString();
 
     const triggerDate = new Date(utløpsdato);
     triggerDate.setDate(triggerDate.getDate() - 2);
@@ -112,7 +113,7 @@ const sendPlanlagdNotifikasjon = async (utløpsdato, produkter) => {
 
     const notifikasjonData = {
       title: 'Produkt utløpsdato påminnelse',
-      body: `Disse produktene vil gå ut den ${formatertUtløpsdato}: ${produkter.map(p => p.produktNamn).join(', ')}`,
+      body: `Disse produktene vil gå ut den ${utløpsdato}: ${produkter.map(p => p.produktNamn).join(', ')}`,
       data: { data: 'goes here' },
     };
 
