@@ -4,18 +4,19 @@ import { hentLagraKjøleskap, setLagraKjøleskap } from "./KjøleskapLagring";
 import { useState } from "react";
 import { useKjøleskap } from "./KjøleskapTabell";
 
-export function RenderKjøleskap({ kjøleskapDisplay, oppdaterUtløpsdatoMap}) {
+export function RenderKjøleskap({ kjøleskapDisplay, oppdaterNotifikasjoner }) {
   const [localDisplay, setLocalDisplay] = useState(kjøleskapDisplay);
   const kjøleskap = useKjøleskap();
 
   const slettProdukt = (kategoriIndeks, produktIndeks) => {
+    const utløpsdatoTilSletting = kjøleskap[kategoriIndeks].produkt[produktIndeks].uformaterUtløpsdato
     setLocalDisplay((kjøleskap) => {
       const nyttKjøleskap = [...kjøleskap];
-      oppdaterUtløpsdatoMap(nyttKjøleskap[kategoriIndeks].produkt[produktIndeks].uformaterUtløpsdato, kjøleskap[kategoriIndeks].produkt[produktIndeks].produktNamn, true);
       nyttKjøleskap[kategoriIndeks].produkt.splice(produktIndeks, 1);
       setLagraKjøleskap(nyttKjøleskap);
       return kjøleskap = nyttKjøleskap;
-    })
+    });
+    oppdaterNotifikasjoner(utløpsdatoTilSletting, true);
     kjøleskap[kategoriIndeks].antall -= 1;
   }
 

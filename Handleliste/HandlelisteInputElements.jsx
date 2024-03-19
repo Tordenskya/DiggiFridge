@@ -9,7 +9,7 @@ import Checkbox from 'expo-checkbox';
 import { hentLagraHandleliste, setLagraHandleliste } from './HandlelisteLagring';
 import { useHandleliste } from './Handleliste';
 
-export function RenderHandleliste({setKjøleskapDisplay, oppdaterUtløpsdatoMap, sendPlanlagdNotifikasjon}) {
+export function RenderHandleliste({setKjøleskapDisplay, oppdaterNotifikasjoner}) {
   const kjøleskap = useKjøleskap();
   const handleliste = useHandleliste();
   const [handlelisteDisplay, setHandlelisteDisplay] = useState(handleliste);
@@ -57,7 +57,7 @@ export function RenderHandleliste({setKjøleskapDisplay, oppdaterUtløpsdatoMap,
     if(handleliste.length > 0) {
       console.log('Flytt til kjøleskap');
       setLagraHandleliste([]);
-      setKjøleskapDisplay(FlyttTilKjøleskap({ handleliste, kjøleskap, oppdaterUtløpsdatoMap, sendPlanlagdNotifikasjon }));
+      setKjøleskapDisplay(FlyttTilKjøleskap({ handleliste, kjøleskap, oppdaterNotifikasjoner }));
     }
     setCheckedProdukt([]);
     console.log(handleliste);

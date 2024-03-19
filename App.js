@@ -25,7 +25,6 @@ export default function App() {
   const [handleliste, setHandleliste] = useState(lagraHandleliste);
   const [expoPushToken, setExpoPushToken] = useState('');
   const [planlagdNotifikasjon, setPlanlagdNotifikasjon] = useState({});
-  const utløpsdatoMap = new Map();
 
 
   useEffect(() => {
@@ -75,33 +74,30 @@ async function registerForPushNotificationsAsync() {
   return token;
 }
 
-const oppdaterUtløpsdatoMap = (utløpsdato, produkt, isDelete = false) => {
-  console.log('oppdaterer utløpsdatoMap');
-
-  if (!utløpsdatoMap.has(utløpsdato) ) {
-    utløpsdatoMap.set({
-      utløpsdato: utløpsdato,
-      produkt: produkt,
-    });
-    sendPlanlagdNotifikasjon(utløpsdato, [produkt]);
-    console.log('Ny dato lagt til');
-  } else {
-    const produkter = utløpsdatoMap.get(utløpsdato);
-    if(isDelete) {
-      const indeks = produkter.findIndex((p) => p.produktId === produkt.produktId);
-      if(indeks !== -1) {
-        if(produkter.length === 0) {
-          avbrytPlanlagdNotifikasjon(utløpsdato);
-          utløpsdatoMap.delete(utløpsdato);
-          console.log('Dato slettet');
-        }
+const finnProduktForUtløpsdato = (utløpsdato) => {
+  const produktMedSammeUtløpsdato = [];
+  for(k = 0; k < kjøleskap.length; k++){
+    for(p = 0; p < kjøleskap[k].produkt.length; p++){
+      if(kjøleskap[k].produkt[p].utløpsdato.match(utløpsdato)){
+        produktMedSammeUtløpsdato.push(kjøleskap[k].produkt[p]);
       }
-    } else {
-      produkter.push(produkt);
-      console.log('Produkt pushet');
     }
+  };
+  return produktMedSammeUtløpsdato;
+}
+
+const oppdaterNotifikasjoner = (utløpsdato, isDelete = false) => {
+  console.log(finnProduktForUtløpsdato(utløpsdato));
+
+  if(isDelete && finnProduktForUtløpsdato(utløpsdato).length === 0){
+    avbrytPlanlagdNotifikasjon(utløpsdato);
+    console.log('Ingen fleire produkt med denne utløpsdatoen');
+  } else {
+    avbrytPlanlagdNotifikasjon(utløpsdato);
+    sendPlanlagdNotifikasjon(utløpsdato, finnProduktForUtløpsdato(utløpsdato));
+    console.log('Lagd nye notifikasjoner');
   }
-  console.log(utløpsdatoMap);
+
 };
 
 const sendPlanlagdNotifikasjon = async (utløpsdato, produkter) => {
@@ -133,21 +129,10 @@ const sendPlanlagdNotifikasjon = async (utløpsdato, produkter) => {
 const avbrytPlanlagdNotifikasjon = async (utløpsdato) => {
   console.log('Avbryter planlagd notifikasjon');
 
-  const notifikajsonsId = planlagdNotifikasjon[utløpsdato];
+  await Notifications.cancelScheduledNotificationAsync(utløpsdato);
 
-  if (notifikajsonsId) {
-    await Notifications.cancelScheduledNotificationAsync(notifikajsonsId);
+  console.log('Notifikasjon avbrutt');
 
-    setPlanlagdNotifikasjon((tidligereNotifikasjoner) => {
-      const oppdatertNotifikasjoner = {...tidligereNotifikasjoner};
-      delete oppdatertNotifikasjoner[utløpsdato];
-      return oppdatertNotifikasjoner;
-    });
-
-    console.log('Notifikasjon avbrutt');
-  } else {
-    console.log('Notifikasjon ikkje avbrutt');
-  }
 }
 
 const sendNotifikasjon = async () => {
@@ -178,7 +163,7 @@ const sendNotifikasjon = async () => {
     const navigation = useNavigation();
     return(
       <View>
-        <RenderKjøleskap kjøleskapDisplay={kjøleskapDisplay} oppdaterUtløpsdatoMap={oppdaterUtløpsdatoMap}/>
+        <RenderKjøleskap kjøleskapDisplay={kjøleskapDisplay} oppdaterNotifikasjoner={oppdaterNotifikasjoner}/>
         <Button
             onPress={() => {
                 navigation.navigate('Handleliste');
@@ -194,7 +179,7 @@ const sendNotifikasjon = async () => {
     return(
       <View>
         <HandleListeInputElements setHandleliste={setHandleliste}/>
-        <RenderHandleliste setKjøleskapDisplay={setKjøleskapDisplay} oppdaterUtløpsdatoMap={oppdaterUtløpsdatoMap}  sendPlanlagdNotifikasjon={sendPlanlagdNotifikasjon}/>
+        <RenderHandleliste setKjøleskapDisplay={setKjøleskapDisplay} oppdaterNotifikasjoner={oppdaterNotifikasjoner}/>
       </View>
     )
   }

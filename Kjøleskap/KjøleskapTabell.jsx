@@ -29,7 +29,7 @@ export const useKjøleskap = () => {
 }
 
 
-export function FlyttTilKjøleskap({handleliste, kjøleskap, oppdaterUtløpsdatoMap, sendPlanlagdNotifikasjon }) {
+export function FlyttTilKjøleskap({handleliste, kjøleskap, oppdaterNotifikasjoner }) {
     console.log('Flytt til kjøleskap starta');
 
     if(!kjøleskap || kjøleskap.length === 0){
@@ -54,7 +54,7 @@ export function FlyttTilKjøleskap({handleliste, kjøleskap, oppdaterUtløpsdato
                     kjøleskap[i].produkt[produktLikeIndeks].produktAntall += parseInt(handleliste[h].produktAntall, 10);
                     kjøleskap[i].antall++;
                   } else {
-                    sendPlanlagdNotifikasjon(handleliste[h].uformatertUtløpsdato, handleliste[h].produktNamn);
+                    oppdaterNotifikasjoner(handleliste[h].utløpsdato);
                     kjøleskap[i].antall++;
                     kjøleskap[i].produkt.push({
                       produktNamn: handleliste[h].produktNamn,
