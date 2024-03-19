@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { hentLagraKjøleskap, setLagraKjøleskap } from './KjøleskapLagring';
 
+//Henter data frå kjøleskap som er lagret med async storage eller lager nytt kjøleskap
 export const useKjøleskap = () => {
     const [kjøleskap, setKjøleskap] = useState([]);
     
@@ -28,7 +29,7 @@ export const useKjøleskap = () => {
     return kjøleskap;
 }
 
-
+//Tar data frå handlelista og oppdaterer kjøleskapet og sender info til å lage notifikasjoner
 export function FlyttTilKjøleskap({handleliste, kjøleskap, oppdaterNotifikasjoner }) {
     console.log('Flytt til kjøleskap starta');
 

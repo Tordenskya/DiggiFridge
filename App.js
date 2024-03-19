@@ -1,5 +1,5 @@
 import { StyleSheet, Button, View, Platform} from 'react-native';
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect} from "react";
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as Device from 'expo-device';
@@ -90,9 +90,11 @@ const oppdaterNotifikasjoner = (utløpsdato, isDelete = false) => {
   console.log(finnProduktForUtløpsdato(utløpsdato));
 
   if(isDelete && finnProduktForUtløpsdato(utløpsdato).length === 0){
+    //Om det er ingen produkt med utløpsdatoen blir notifikasjonen slettet
     avbrytPlanlagdNotifikasjon(utløpsdato);
     console.log('Ingen fleire produkt med denne utløpsdatoen');
   } else {
+    //Om noko blir slettet eller lagt til sletter det den tidligere planlagde notifikasjonen og lager ny med produkter som har lik utløpsdato
     avbrytPlanlagdNotifikasjon(utløpsdato);
     sendPlanlagdNotifikasjon(utløpsdato, finnProduktForUtløpsdato(utløpsdato));
     console.log('Lagd nye notifikasjoner');
@@ -100,6 +102,7 @@ const oppdaterNotifikasjoner = (utløpsdato, isDelete = false) => {
 
 };
 
+//Lager til notifikasjon om produkter som går ut på dato
 const sendPlanlagdNotifikasjon = async (utløpsdato, produkter) => {
     console.log('Planlegger push notifikasjon');
 
@@ -126,6 +129,8 @@ const sendPlanlagdNotifikasjon = async (utløpsdato, produkter) => {
     console.log('Notifikasjon planlagt');
 }
 
+//Sletter planlagde notifikasjoner
+//Sjekk om der er promise error  
 const avbrytPlanlagdNotifikasjon = async (utløpsdato) => {
   console.log('Avbryter planlagd notifikasjon');
 
@@ -134,31 +139,10 @@ const avbrytPlanlagdNotifikasjon = async (utløpsdato) => {
   console.log('Notifikasjon avbrutt');
 
 }
-
-const sendNotifikasjon = async () => {
-  console.log("Sender push notifikasjon...")
-
-  const melding = {
-    to: expoPushToken,
-    sound: "default",
-    title: "Notifikasjon <3",
-    body: "Ditte e ein notifikajson"
-  }
-  
-  await fetch("https://exp.host/--/api/v2/push/send", {
-    method: "POST",
-    headers: {
-      host: "exp.host",
-      accept: "application/json",
-      "accept-encoding": "gzip, deflate",
-      "content-type": "application/json",
-    },
-    body: JSON.stringify(melding)
-  })
-}
-
+  //Lag ein Screen for redigering av kategorier i kjøleskap, kl av notifikasjons meldinger, (dark mode??)
   const Stack = createNativeStackNavigator();
 
+  //Viser fram all data frå kjøleskapet
   function KjøleskapScreen() {
     const navigation = useNavigation();
     return(
@@ -175,6 +159,7 @@ const sendNotifikasjon = async () => {
     )
   }
 
+  //Legger til nye produkt i handlelista, viser fram handlelista og flytter det til kjøleskapet
   function HandlelisteScreen() {
     return(
       <View>

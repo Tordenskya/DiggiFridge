@@ -8,14 +8,17 @@ export function RenderKjøleskap({ kjøleskapDisplay, oppdaterNotifikasjoner }) 
   const [localDisplay, setLocalDisplay] = useState(kjøleskapDisplay);
   const kjøleskap = useKjøleskap();
 
+  //Sletter produkter frå display, async storage og notifikasjoner
   const slettProdukt = (kategoriIndeks, produktIndeks) => {
     const utløpsdatoTilSletting = kjøleskap[kategoriIndeks].produkt[produktIndeks].uformaterUtløpsdato
+
     setLocalDisplay((kjøleskap) => {
       const nyttKjøleskap = [...kjøleskap];
-      nyttKjøleskap[kategoriIndeks].produkt.splice(produktIndeks, 1);
-      setLagraKjøleskap(nyttKjøleskap);
+        nyttKjøleskap[kategoriIndeks].produkt.splice(produktIndeks, 1);
+        setLagraKjøleskap(nyttKjøleskap);
       return kjøleskap = nyttKjøleskap;
     });
+    
     oppdaterNotifikasjoner(utløpsdatoTilSletting, true);
     kjøleskap[kategoriIndeks].antall -= 1;
   }
