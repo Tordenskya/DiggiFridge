@@ -10,7 +10,7 @@ import { hentLagraHandleliste, setLagraHandleliste } from './HandlelisteLagring'
 import { useHandleliste } from './Handleliste';
 
 //Viser fram handlelista
-export function RenderHandleliste({setKjøleskapDisplay, oppdaterNotifikasjoner}) {
+export function RenderHandleliste({setKjøleskapDisplay, oppdaterNotifikasjoner, setHandleliste}) {
   const kjøleskap = useKjøleskap();
   const handleliste = useHandleliste();
   const [handlelisteDisplay, setHandlelisteDisplay] = useState(handleliste);
@@ -51,7 +51,11 @@ export function RenderHandleliste({setKjøleskapDisplay, oppdaterNotifikasjoner}
       const nyHandleliste = [...handleliste];
       nyHandleliste.splice(indeks, 1);
       setLagraHandleliste(nyHandleliste);
-      return handleliste = nyHandleliste;
+      setHandleliste(nyHandleliste);
+      console.log('Sletter produkt frå handleliste: ')
+      console.log(handleliste.length);
+      console.log(nyHandleliste.length);
+      return nyHandleliste;
     });
     console.log(handleliste);
   };
@@ -157,7 +161,9 @@ export function HandleListeInputElements({setHandleliste}) {
   if (produktAntallInput != 0 || produktNamnInput != '') {
     setHandleliste((tidlegareHandleliste) => {
         let nyHandleliste;
-        if(handleliste.length === 0){
+        console.log(tidlegareHandleliste.length);
+        console.log(handleliste.length);
+        if(handleliste.length < tidlegareHandleliste.length){
           nyHandleliste = [...handleliste];
         } else {
           nyHandleliste = [...tidlegareHandleliste];
