@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { hentLagraKjøleskap, setLagraKjøleskap } from './KjøleskapLagring';
 
+//Henter data frå kjøleskap som er lagret med async storage eller lager nytt kjøleskap
 export const useKjøleskap = () => {
     const [kjøleskap, setKjøleskap] = useState([]);
     
@@ -28,9 +29,10 @@ export const useKjøleskap = () => {
     return kjøleskap;
 }
 
-
+//Tar data frå handlelista og oppdaterer kjøleskapet og sender info til å lage notifikasjoner
 export function FlyttTilKjøleskap({handleliste, kjøleskap, oppdaterNotifikasjoner }) {
     console.log('Flytt til kjøleskap starta');
+    let unikeUtløpsdatoer = [];
 
     if(!kjøleskap || kjøleskap.length === 0){
         return null;
@@ -54,7 +56,21 @@ export function FlyttTilKjøleskap({handleliste, kjøleskap, oppdaterNotifikasjo
                     kjøleskap[i].produkt[produktLikeIndeks].produktAntall += parseInt(handleliste[h].produktAntall, 10);
                     kjøleskap[i].antall++;
                   } else {
-                    oppdaterNotifikasjoner(handleliste[h].utløpsdato);
+                    if(unikeUtløpsdatoer.length === 0){
+                        unikeUtløpsdatoer.push(handleliste[h].uformatertUtløpsdato);
+                        console.log('Unik utløpsdato');
+                    } else {
+                        let utløpsdatoLagretFraFør = true;
+                        for(i = 0; i < unikeUtløpsdatoer.length; i++){
+                            if(!unikeUtløpsdatoer[i].match(handleliste[h].uformatertUtløpsdato)){
+                                !utløpsdatoLagretFraFør;
+                            }
+                        }
+                        if(!utløpsdatoLagretFraFør){
+                            unikeUtløpsdatoer.push(handleliste[h].uformatertUtløpsdato);
+                            console.log('Unik utløpsdato');
+                        }
+                    }
                     kjøleskap[i].antall++;
                     kjøleskap[i].produkt.push({
                       produktNamn: handleliste[h].produktNamn,
@@ -67,6 +83,8 @@ export function FlyttTilKjøleskap({handleliste, kjøleskap, oppdaterNotifikasjo
         }
     }
     console.log('Set lagra kjøleskap');
+    console.log('Oppdaterer notifikasjoner');
+    unikeUtløpsdatoer.map(u => oppdaterNotifikasjoner(kjøleskap, u));
     setLagraKjøleskap(kjøleskap);
     console.log(kjøleskap);
     return kjøleskap;

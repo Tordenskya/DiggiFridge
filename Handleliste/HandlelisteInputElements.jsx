@@ -9,7 +9,8 @@ import Checkbox from 'expo-checkbox';
 import { hentLagraHandleliste, setLagraHandleliste } from './HandlelisteLagring';
 import { useHandleliste } from './Handleliste';
 
-export function RenderHandleliste({setKjøleskapDisplay, oppdaterNotifikasjoner}) {
+//Viser fram handlelista
+export function RenderHandleliste({setKjøleskapDisplay, oppdaterNotifikasjoner, setHandleliste}) {
   const kjøleskap = useKjøleskap();
   const handleliste = useHandleliste();
   const [handlelisteDisplay, setHandlelisteDisplay] = useState(handleliste);
@@ -17,6 +18,7 @@ export function RenderHandleliste({setKjøleskapDisplay, oppdaterNotifikasjoner}
   const [checkedProdukt, setCheckedProdukt] = useState([]);
   const [utløpsdato, setUtløpsdato] = useState(new Date());
 
+  //Når ein checkbox blir checked viser den fram ein kalender for å legge inn utløpsdato data
   const HondterCheckBoxForandring = (indeks) => {
     setCheckedProdukt((tidligareCheckedProdukt) => {
       const nyttCheckedProdukt = [...tidligareCheckedProdukt];
@@ -32,6 +34,7 @@ export function RenderHandleliste({setKjøleskapDisplay, oppdaterNotifikasjoner}
     });
   }
 
+  //Når utløpsdato data er lagret blir det lagt inn i riktig produkt
   const HondterUtløpsdatoForandring = (event, indeks) => {
     const nyUtløpsdato = event.nativeEvent.timestamp;
     const localFormatUtløpsdato = new Date(nyUtløpsdato).toLocaleDateString();
@@ -42,17 +45,22 @@ export function RenderHandleliste({setKjøleskapDisplay, oppdaterNotifikasjoner}
     handleliste[indeks].uformatertUtløpsdato = isoFormatUtløpsdato;
   }
 
-
+  //Sletter eit produkt frå handlelista
   const DeleteProdukt = (indeks) => {
     setHandlelisteDisplay((handleliste) => {
       const nyHandleliste = [...handleliste];
       nyHandleliste.splice(indeks, 1);
       setLagraHandleliste(nyHandleliste);
-      return handleliste = nyHandleliste;
+      setHandleliste(nyHandleliste);
+      console.log('Sletter produkt frå handleliste: ')
+      console.log(handleliste.length);
+      console.log(nyHandleliste.length);
+      return nyHandleliste;
     });
     console.log(handleliste);
   };
 
+  //Sender data til kjøleskapet og resetter handleliste tabeller
   const flyttFraHandleliste = () => {
     if(handleliste.length > 0) {
       console.log('Flytt til kjøleskap');
@@ -122,6 +130,7 @@ export function RenderHandleliste({setKjøleskapDisplay, oppdaterNotifikasjoner}
   );
 }
 
+//Tar data frå inputs og legger det til handlelista
 export function HandleListeInputElements({setHandleliste}) {
   const kjøleskap = useKjøleskap();
   const handleliste = useHandleliste();
@@ -147,11 +156,14 @@ export function HandleListeInputElements({setHandleliste}) {
     setProduktAntallInput(text);
   };
 
+  
   const LeggTilHandleliste = () => {
   if (produktAntallInput != 0 || produktNamnInput != '') {
     setHandleliste((tidlegareHandleliste) => {
         let nyHandleliste;
-        if(handleliste.length === 0){
+        console.log(tidlegareHandleliste.length);
+        console.log(handleliste.length);
+        if(handleliste.length < tidlegareHandleliste.length){
           nyHandleliste = [...handleliste];
         } else {
           nyHandleliste = [...tidlegareHandleliste];

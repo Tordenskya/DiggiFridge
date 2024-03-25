@@ -8,15 +8,18 @@ export function RenderKjøleskap({ kjøleskapDisplay, oppdaterNotifikasjoner }) 
   const [localDisplay, setLocalDisplay] = useState(kjøleskapDisplay);
   const kjøleskap = useKjøleskap();
 
+  //Sletter produkter frå display, async storage og notifikasjoner
   const slettProdukt = (kategoriIndeks, produktIndeks) => {
     const utløpsdatoTilSletting = kjøleskap[kategoriIndeks].produkt[produktIndeks].uformaterUtløpsdato
+
     setLocalDisplay((kjøleskap) => {
       const nyttKjøleskap = [...kjøleskap];
-      nyttKjøleskap[kategoriIndeks].produkt.splice(produktIndeks, 1);
-      setLagraKjøleskap(nyttKjøleskap);
+        nyttKjøleskap[kategoriIndeks].produkt.splice(produktIndeks, 1);
+        oppdaterNotifikasjoner(nyttKjøleskap, utløpsdatoTilSletting, true);
+        setLagraKjøleskap(nyttKjøleskap);
       return kjøleskap = nyttKjøleskap;
     });
-    oppdaterNotifikasjoner(utløpsdatoTilSletting, true);
+    
     kjøleskap[kategoriIndeks].antall -= 1;
   }
 
@@ -51,13 +54,13 @@ export function RenderKjøleskap({ kjøleskapDisplay, oppdaterNotifikasjoner }) 
             <View style={stil.produktKolonne}>
               <Text>Antall</Text>
               {kategori.produkt.map((produkt) => (
-                <Text key={produkt.produktAntall}>{produkt.produktAntall}</Text>
+                <Text key={produkt.produktNamn}>{produkt.produktAntall}</Text>
               ))}
             </View>
             <View style={stil.produktKolonne}>
               <Text>Utløpsdato</Text>
               {kategori.produkt.map((produkt) => (
-                <Text key={produkt.utløpsdato}>{produkt.utløpsdato}</Text>
+                <Text key={produkt.produktNamn}>{produkt.utløpsdato}</Text>
               ))}
             </View>
             <View  style={stil.produktKolonne}>

@@ -1,5 +1,5 @@
 import { StyleSheet, Button, View, Platform} from 'react-native';
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect} from "react";
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as Device from 'expo-device';
@@ -8,6 +8,7 @@ import { RenderHandleliste, HandleListeInputElements } from "./Handleliste/Handl
 import { useKjøleskap } from './Kjøleskap/KjøleskapTabell';
 import { RenderKjøleskap } from "./Kjøleskap/KjøleskapDisplay";
 import {useHandleliste} from './Handleliste/Handleliste'
+import { hentLagraNotifikasjonsIdTabell, setLagraNotifikasjonsIdTabell } from './Kjøleskap/notifikasjonsDataLagring';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -40,6 +41,20 @@ export default function App() {
 
   getPushToken();
 }, []);
+
+  useEffect (() => {
+    const hentData = async () => {
+      try {
+        const lagraNotifikasjonsId = await hentLagraNotifikasjonsIdTabell();
+        if(lagraNotifikasjonsId != null){
+          setPlanlagdNotifikasjon(lagraNotifikasjonsId);
+        }
+      } catch(err){
+        console.log(err)
+      }
+    };
+    hentData();
+  }, [])
 
 async function registerForPushNotificationsAsync() {
   let token;
@@ -74,32 +89,37 @@ async function registerForPushNotificationsAsync() {
   return token;
 }
 
-const finnProduktForUtløpsdato = (utløpsdato) => {
+const finnProduktForUtløpsdato = ( kjøleskap, utløpsdato) => {
   const produktMedSammeUtløpsdato = [];
+  console.log('Finn produkt med utløpsdato starta');
   for(k = 0; k < kjøleskap.length; k++){
     for(p = 0; p < kjøleskap[k].produkt.length; p++){
       if(kjøleskap[k].produkt[p].utløpsdato.match(utløpsdato)){
         produktMedSammeUtløpsdato.push(kjøleskap[k].produkt[p]);
+        console.log('Funnet produkt med samme utløpsdato ' + kjøleskap[k].produkt[p].produktNamn);
       }
     }
   };
   return produktMedSammeUtløpsdato;
 }
 
-const oppdaterNotifikasjoner = (utløpsdato, isDelete = false) => {
-  console.log(finnProduktForUtløpsdato(utløpsdato));
+const oppdaterNotifikasjoner = (kjøleskap, utløpsdato, isDelete = false) => {
+  console.log(finnProduktForUtløpsdato( kjøleskap, utløpsdato));
 
-  if(isDelete && finnProduktForUtløpsdato(utløpsdato).length === 0){
+  if(isDelete && finnProduktForUtløpsdato( kjøleskap, utløpsdato).length === 0){
+    //Om det er ingen produkt med utløpsdatoen blir notifikasjonen slettet
     avbrytPlanlagdNotifikasjon(utløpsdato);
     console.log('Ingen fleire produkt med denne utløpsdatoen');
   } else {
+    //Om noko blir slettet eller lagt til sletter det den tidligere planlagde notifikasjonen og lager ny med produkter som har lik utløpsdato
     avbrytPlanlagdNotifikasjon(utløpsdato);
-    sendPlanlagdNotifikasjon(utløpsdato, finnProduktForUtløpsdato(utløpsdato));
+    sendPlanlagdNotifikasjon(utløpsdato, finnProduktForUtløpsdato( kjøleskap, utløpsdato));
     console.log('Lagd nye notifikasjoner');
   }
 
 };
 
+//Lager til notifikasjon om produkter som går ut på dato
 const sendPlanlagdNotifikasjon = async (utløpsdato, produkter) => {
     console.log('Planlegger push notifikasjon');
 
@@ -115,50 +135,46 @@ const sendPlanlagdNotifikasjon = async (utløpsdato, produkter) => {
 
     const notifikajsonsId = await Notifications.scheduleNotificationAsync({
       content: notifikasjonData,
-      trigger: { date: triggerDate },
+      trigger: { date: triggerDate }, 
     });
 
-    setPlanlagdNotifikasjon((tidligereNotifikasjoner) => ({
-      ...tidligereNotifikasjoner,
-      [utløpsdato]: notifikajsonsId,
-    }));
+    console.log('Notifikasjons ID: ');
+    console.log(notifikajsonsId);
+
+    const nyNotifikasjonsTabell = planlagdNotifikasjon;
+    nyNotifikasjonsTabell.utløpsdato = notifikajsonsId;
+
+    setLagraNotifikasjonsIdTabell(nyNotifikasjonsTabell);
 
     console.log('Notifikasjon planlagt');
 }
 
+//Sletter planlagde notifikasjoner
+//Sjekk om der er promise error  
 const avbrytPlanlagdNotifikasjon = async (utløpsdato) => {
   console.log('Avbryter planlagd notifikasjon');
 
-  await Notifications.cancelScheduledNotificationAsync(utløpsdato);
+  const notifikajsonsId = planlagdNotifikasjon[utløpsdato];
+  if(notifikajsonsId){
+    await Notifications.cancelScheduledNotificationAsync(notifikajsonsId);
+    setPlanlagdNotifikasjon((tidligereNotifikasjoner) => {
+      const nyNotifikasjonsTabell = [...tidligereNotifikasjoner];
+      nyNotifikasjonsTabell.splice(utløpsdato, 1);
+      setLagraNotifikasjonsIdTabell(nyNotifikasjonsTabell);
+      return nyNotifikasjonsTabell;
+    })
+  } else {
+    console.log('Ingen notifikasjon funnet for denne datoen');
+  }
 
   console.log('Notifikasjon avbrutt');
 
 }
 
-const sendNotifikasjon = async () => {
-  console.log("Sender push notifikasjon...")
-
-  const melding = {
-    to: expoPushToken,
-    sound: "default",
-    title: "Notifikasjon <3",
-    body: "Ditte e ein notifikajson"
-  }
-  
-  await fetch("https://exp.host/--/api/v2/push/send", {
-    method: "POST",
-    headers: {
-      host: "exp.host",
-      accept: "application/json",
-      "accept-encoding": "gzip, deflate",
-      "content-type": "application/json",
-    },
-    body: JSON.stringify(melding)
-  })
-}
-
+  //Lag ein Screen for redigering av kategorier i kjøleskap, kl av notifikasjons meldinger, (dark mode??)
   const Stack = createNativeStackNavigator();
 
+  //Viser fram all data frå kjøleskapet
   function KjøleskapScreen() {
     const navigation = useNavigation();
     return(
@@ -175,11 +191,12 @@ const sendNotifikasjon = async () => {
     )
   }
 
+  //Legger til nye produkt i handlelista, viser fram handlelista og flytter det til kjøleskapet
   function HandlelisteScreen() {
     return(
       <View>
         <HandleListeInputElements setHandleliste={setHandleliste}/>
-        <RenderHandleliste setKjøleskapDisplay={setKjøleskapDisplay} oppdaterNotifikasjoner={oppdaterNotifikasjoner}/>
+        <RenderHandleliste setKjøleskapDisplay={setKjøleskapDisplay} oppdaterNotifikasjoner={oppdaterNotifikasjoner} setHandleliste={setHandleliste}/>
       </View>
     )
   }
