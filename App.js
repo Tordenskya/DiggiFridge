@@ -1,4 +1,4 @@
-import { StyleSheet, Button, View, Platform} from 'react-native';
+import { StyleSheet, Button, View, Platform, TouchableOpacity} from 'react-native';
 import { useState, useEffect} from "react";
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -95,7 +95,7 @@ const finnProduktForUtløpsdato = ( kjøleskap, utløpsdato) => {
   for(k = 0; k < kjøleskap.length; k++){
     for(p = 0; p < kjøleskap[k].produkt.length; p++){
       if(kjøleskap[k].produkt[p].utløpsdato.match(utløpsdato)){
-        produktMedSammeUtløpsdato.push(kjøleskap[k].produkt[p]);
+        produktMedSammeUtløpsdato.push(kjøleskap[k].produkt[p].produktNamn);
         console.log('Funnet produkt med samme utløpsdato ' + kjøleskap[k].produkt[p].produktNamn);
       }
     }
@@ -104,7 +104,7 @@ const finnProduktForUtløpsdato = ( kjøleskap, utløpsdato) => {
 }
 
 const oppdaterNotifikasjoner = (kjøleskap, utløpsdato, isDelete = false) => {
-  console.log(finnProduktForUtløpsdato( kjøleskap, utløpsdato));
+  console.log('Produkt med utløpsdato ' + utløpsdato + ': ' + finnProduktForUtløpsdato( kjøleskap, utløpsdato));
 
   if(isDelete && finnProduktForUtløpsdato( kjøleskap, utløpsdato).length === 0){
     //Om det er ingen produkt med utløpsdatoen blir notifikasjonen slettet
@@ -129,7 +129,7 @@ const sendPlanlagdNotifikasjon = async (utløpsdato, produkter) => {
 
     const notifikasjonData = {
       title: 'Produkt utløpsdato påminnelse',
-      body: `Disse produktene vil gå ut den ${utløpsdato}: ${produkter.map(p => p.produktNamn).join(', ')}`,
+      body: `Disse produktene vil gå ut den ${utløpsdato}: ${produkter.map(p => p).join(', ')}`,
       data: { data: 'goes here' },
     };
 
@@ -178,15 +178,17 @@ const avbrytPlanlagdNotifikasjon = async (utløpsdato) => {
   function KjøleskapScreen() {
     const navigation = useNavigation();
     return(
-      <View>
+      <View style={stil.container}>
         <RenderKjøleskap kjøleskapDisplay={kjøleskapDisplay} oppdaterNotifikasjoner={oppdaterNotifikasjoner}/>
-        <Button
-            onPress={() => {
-                navigation.navigate('Handleliste');
-            }}
-            title="Go to Handleliste"
-            style={stil.handlelisteKnapp}
-        />   
+        <TouchableOpacity style={stil.handlelisteKnapp}>
+          <Button
+              onPress={() => {
+                  navigation.navigate('Handleliste');
+              }}
+              title="Go to Handleliste"
+              
+          />   
+        </TouchableOpacity>
       </View>
     )
   }
@@ -216,16 +218,14 @@ const stil = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
-    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
   },
   handlelisteKnapp: {
-    ...StyleSheet.absoluteFillObject,
-    top: 0,
-    right: 5,
-    alignSelf: 'flex-end',
-    marginTop: -160,
-    marginLeft: -70,
     width: 150,
-    position: 'absolute'
+    position: 'absolute',
+    bottom:  20,
+    right: 20,
+    borderRadius: 20
 }
 });

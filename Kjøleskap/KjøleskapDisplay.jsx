@@ -20,7 +20,7 @@ export function RenderKjøleskap({ kjøleskapDisplay, oppdaterNotifikasjoner }) 
       return kjøleskap = nyttKjøleskap;
     });
     
-    kjøleskap[kategoriIndeks].antall -= 1;
+    kjøleskap[kategoriIndeks].antall --;
   }
 
   useEffect(() => {
@@ -38,27 +38,33 @@ export function RenderKjøleskap({ kjøleskapDisplay, oppdaterNotifikasjoner }) 
     hentData();
   }, []);
 
+  const kategoriBakgrunnsFarge = {
+    Pålegg: 'lightyellow',
+    KjøttFisk: 'lightpink',
+    Grønnsaker: 'lightgreen'
+  }
+
 
   return (
-    <View>
+    <View style={stil.kjøleskap}>
       {localDisplay.map((kategori, kategoriIndeks) => (
-        <View key={kategori.kategori} style={stil.kjøleskapsHylle}>
-          <Text>{kategori.kategori}</Text>
+        <View key={kategori.kategori} style={[stil.kjøleskapsHylle, { backgroundColor: kategoriBakgrunnsFarge[kategori.kategori] }]}>
+          <Text style={stil.kategoriNamn}>{kategori.kategori}</Text>
           <View key={kategori.kategori} style={stil.infoRad}>
             <View style={stil.produktKolonne}>
-              <Text>Produkt</Text>
+              <Text style={stil.infoText}>Produkt</Text>
               {kategori.produkt.map((produkt) => (
                 <Text key={produkt.produktNamn}>{produkt.produktNamn}</Text>
               ))}
             </View>
             <View style={stil.produktKolonne}>
-              <Text>Antall</Text>
+              <Text style={stil.infoText}>Antall</Text>
               {kategori.produkt.map((produkt) => (
                 <Text key={produkt.produktNamn}>{produkt.produktAntall}</Text>
               ))}
             </View>
             <View style={stil.produktKolonne}>
-              <Text>Utløpsdato</Text>
+              <Text style={stil.infoText}>Utløpsdato</Text>
               {kategori.produkt.map((produkt) => (
                 <Text key={produkt.produktNamn}>{produkt.utløpsdato}</Text>
               ))}
@@ -84,9 +90,16 @@ export function RenderKjøleskap({ kjøleskapDisplay, oppdaterNotifikasjoner }) 
 
 
 const stil = StyleSheet.create({
+  kjøleskap: {
+    width: '100%'
+  },
+
   kjøleskapsHylle: {
     flexDirection: 'column',
     textAlign: 'left',
+    padding: 5,
+    margin: 2,
+    borderRadius: 20,
   },
 
   infoRad: {
@@ -97,9 +110,21 @@ const stil = StyleSheet.create({
   produktKolonne: {
     flexDirection: 'column',
     paddingRight: 10,
+    paddingBottom: 8,
+    alignItems: 'center'
   },
 
   knapp: {
     flexDirection: 'row'
+  },
+
+  kategoriNamn: {
+    fontWeight: 'bold',
+    fontSize: 18
+  },
+
+  infoText: {
+    fontWeight: 'bold',
+    fontSize: 14
   }
 });
