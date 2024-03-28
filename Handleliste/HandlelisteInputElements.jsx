@@ -16,7 +16,6 @@ export function RenderHandleliste({setKjøleskapDisplay, oppdaterNotifikasjoner,
   const [handlelisteDisplay, setHandlelisteDisplay] = useState(handleliste);
   const [visDatePicker, setVisDatePicker] = useState(false);
   const [checkedProdukt, setCheckedProdukt] = useState([]);
-  const [utløpsdato, setUtløpsdato] = useState(new Date());
 
   //Når ein checkbox blir checked viser den fram ein kalender for å legge inn utløpsdato data
   const HondterCheckBoxForandring = (indeks) => {
@@ -37,12 +36,9 @@ export function RenderHandleliste({setKjøleskapDisplay, oppdaterNotifikasjoner,
   //Når utløpsdato data er lagret blir det lagt inn i riktig produkt
   const HondterUtløpsdatoForandring = (event, indeks) => {
     const nyUtløpsdato = event.nativeEvent.timestamp;
-    const localFormatUtløpsdato = new Date(nyUtløpsdato).toLocaleDateString();
-    const isoFormatUtløpsdato = new Date(nyUtløpsdato).toISOString();
 
-    setUtløpsdato(new Date(nyUtløpsdato));
-    handleliste[indeks].utløpsdato = localFormatUtløpsdato;
-    handleliste[indeks].uformatertUtløpsdato = isoFormatUtløpsdato;
+    handleliste[indeks].utløpsdato = new Date(nyUtløpsdato).toLocaleDateString();
+    setVisDatePicker(false);
   }
 
   //Sletter eit produkt frå handlelista
@@ -62,6 +58,7 @@ export function RenderHandleliste({setKjøleskapDisplay, oppdaterNotifikasjoner,
 
   //Sender data til kjøleskapet og resetter handleliste tabeller
   const flyttFraHandleliste = () => {
+    console.log('Handleliste antall: ' + handleliste.length)
     if(handleliste.length > 0) {
       console.log('Flytt til kjøleskap');
       setLagraHandleliste([]);
@@ -175,7 +172,6 @@ export function HandleListeInputElements({setHandleliste}) {
           produktAntall: produktAntallInput,
           checked: false,
           utløpsdato: '',
-          uformatertUtløpsdato: '',
         });
         setLagraHandleliste(nyHandleliste);
         console.log('Nytt produkt lagret i handleliste');
