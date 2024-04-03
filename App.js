@@ -1,4 +1,5 @@
-import { StyleSheet, Button, View, Platform, TouchableOpacity} from 'react-native';
+import { StyleSheet, Button, View, Platform, TouchableOpacity, Image } from 'react-native';
+import HandlelisteIcon from './assets/HandlelisteIcon.png';
 import { useState, useEffect} from "react";
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -92,11 +93,11 @@ async function registerForPushNotificationsAsync() {
 const finnProduktForUtløpsdato = ( kjøleskap, utløpsdato) => {
   const produktMedSammeUtløpsdato = [];
   console.log('Finn produkt med utløpsdato starta');
-  for(k = 0; k < kjøleskap.length; k++){
-    for(p = 0; p < kjøleskap[k].produkt.length; p++){
-      if(kjøleskap[k].produkt[p].utløpsdato.match(utløpsdato)){
+  for(let k = 0; k < kjøleskap.length; k++){
+    for(let p = 0; p < kjøleskap[k].produkt.length; p++){
+      if(kjøleskap[k].produkt[p].uformatertUtløpsdato.match(utløpsdato)){
         produktMedSammeUtløpsdato.push(kjøleskap[k].produkt[p].produktNamn);
-        console.log('Funnet produkt med samme utløpsdato ' + kjøleskap[k].produkt[p].produktNamn);
+        console.log('Funnet produkt med utløpsdato ' + kjøleskap[k].produkt[p].produktNamn);
       }
     }
   };
@@ -106,6 +107,8 @@ const finnProduktForUtløpsdato = ( kjøleskap, utløpsdato) => {
 const oppdaterNotifikasjoner = (kjøleskap, utløpsdato, isDelete = false) => {
   console.log('Produkt med utløpsdato ' + utløpsdato + ': ' + finnProduktForUtløpsdato( kjøleskap, utløpsdato));
 
+  const produkt = finnProduktForUtløpsdato( kjøleskap, utløpsdato);
+
   if(isDelete && finnProduktForUtløpsdato( kjøleskap, utløpsdato).length === 0){
     //Om det er ingen produkt med utløpsdatoen blir notifikasjonen slettet
     avbrytPlanlagdNotifikasjon(utløpsdato);
@@ -113,7 +116,7 @@ const oppdaterNotifikasjoner = (kjøleskap, utløpsdato, isDelete = false) => {
   } else {
     //Om noko blir slettet eller lagt til sletter det den tidligere planlagde notifikasjonen og lager ny med produkter som har lik utløpsdato
     avbrytPlanlagdNotifikasjon(utløpsdato);
-    sendPlanlagdNotifikasjon(utløpsdato, finnProduktForUtløpsdato( kjøleskap, utløpsdato));
+    sendPlanlagdNotifikasjon(utløpsdato, produkt);
     console.log('Lagd nye notifikasjoner');
   }
 
@@ -123,15 +126,26 @@ const oppdaterNotifikasjoner = (kjøleskap, utløpsdato, isDelete = false) => {
 const sendPlanlagdNotifikasjon = async (utløpsdato, produkter) => {
     console.log('Planlegger push notifikasjon');
 
+    const lokalUtløpsdato = new Date(utløpsdato).toLocaleDateString();
     const triggerDate = new Date(utløpsdato);
     triggerDate.setDate(triggerDate.getDate() - 2);
     triggerDate.setHours(12, 0, 0, 0);
 
-    const notifikasjonData = {
-      title: 'Produkt utløpsdato påminnelse',
-      body: `Disse produktene vil gå ut den ${utløpsdato}: ${produkter.map(p => p).join(', ')}`,
-      data: { data: 'goes here' },
-    };
+    let  notifikasjonData;
+
+    if(produkter.length > 1){
+      notifikasjonData = {
+        title: 'Produkt utløpsdato påminnelse',
+        body: `Disse produktene vil gå ut den ${lokalUtløpsdato}: ${produkter}`,
+        data: { data: 'goes here' },
+      };
+    } else {
+      notifikasjonData = {
+        title: 'Produkt utløpsdato påminnelse',
+        body: `Dette produktet vil gå ut den ${lokalUtløpsdato}: ${produkter}`,
+        data: { data: 'goes here' },
+      };
+    }
 
     const notifikajsonsId = await Notifications.scheduleNotificationAsync({
       content: notifikasjonData,
@@ -146,7 +160,7 @@ const sendPlanlagdNotifikasjon = async (utløpsdato, produkter) => {
 
     setLagraNotifikasjonsIdTabell(nyNotifikasjonsTabell);
 
-    console.log('Notifikasjon planlagt');
+    console.log('Notifikasjon planlagt for ' + triggerDate.toLocaleString());
 }
 
 //Sletter planlagde notifikasjoner
@@ -155,6 +169,7 @@ const avbrytPlanlagdNotifikasjon = async (utløpsdato) => {
   console.log('Avbryter planlagd notifikasjon');
 
   const notifikajsonsId = planlagdNotifikasjon[utløpsdato];
+
   if(notifikajsonsId){
     await Notifications.cancelScheduledNotificationAsync(notifikajsonsId);
     setPlanlagdNotifikasjon((tidligereNotifikasjoner) => {
@@ -166,10 +181,29 @@ const avbrytPlanlagdNotifikasjon = async (utløpsdato) => {
   } else {
     console.log('Ingen notifikasjon funnet for denne datoen');
   }
-
   console.log('Notifikasjon avbrutt');
-
 }
+
+  const sendNotification = async () => {
+    // Define notification content
+    const notificationContent = {
+      title: 'Produkt som går ut på dato',
+      body: `Notifikasjoner med dato ` + kjøleskap[0].produkt[0].utløpsdato + ' : ' + finnProduktForUtløpsdato( kjøleskap, kjøleskap[0].produkt[0].utløpsdato),
+    };
+
+    // Schedule the notification
+    try {
+      const trigger = new Date().getTime() + 5000; // Send notification after 5 seconds
+      await Notifications.scheduleNotificationAsync({
+        content: notificationContent,
+        trigger,
+      });
+      console.log('Notification scheduled successfully!');
+    } catch (error) {
+      console.error('Failed to schedule notification:', error);
+    }
+  };  
+
 
   //Lag ein Screen for redigering av kategorier i kjøleskap, kl av notifikasjons meldinger, (dark mode??)
   const Stack = createNativeStackNavigator();
@@ -180,14 +214,8 @@ const avbrytPlanlagdNotifikasjon = async (utløpsdato) => {
     return(
       <View style={stil.container}>
         <RenderKjøleskap kjøleskapDisplay={kjøleskapDisplay} oppdaterNotifikasjoner={oppdaterNotifikasjoner}/>
-        <TouchableOpacity style={stil.handlelisteKnapp}>
-          <Button
-              onPress={() => {
-                  navigation.navigate('Handleliste');
-              }}
-              title="Go to Handleliste"
-              
-          />   
+        <TouchableOpacity style={stil.handlelisteKnapp} onPress={() => {navigation.navigate('Handleliste');}}>
+          <Image source={HandlelisteIcon} style={{ width: 90, height: 90 }} />
         </TouchableOpacity>
       </View>
     )
@@ -222,10 +250,15 @@ const stil = StyleSheet.create({
     height: '100%',
   },
   handlelisteKnapp: {
-    width: 150,
+    width: 130,
+    height: 120,
     position: 'absolute',
-    bottom:  20,
-    right: 20,
-    borderRadius: 20
+    bottom:  30,
+    right: 10,
+    borderRadius: 90,
+    backgroundColor: 'lightblue',
+    padding: 12,
+    alignContent: 'center',
+    alignItems: 'center'
 }
 });
