@@ -1,6 +1,9 @@
-import { View, Text, StyleSheet, Button, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, Button, Modal, TextInput } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
+import SøppelIcon from '../assets/trash-can-10416.png';
 import { useEffect } from "react";
 import { hentLagraKjøleskap, setLagraKjøleskap } from "./KjøleskapLagring";
+import { LeggTilKategori } from "./nyKategori";
 import { useState } from "react";
 import { useKjøleskap } from "./KjøleskapTabell";
 
@@ -38,45 +41,42 @@ export function RenderKjøleskap({ kjøleskapDisplay, oppdaterNotifikasjoner }) 
     hentData();
   }, []);
 
-  const kategoriBakgrunnsFarge = {
-    Pålegg: 'lightyellow',
-    KjøttFisk: 'lightpink',
-    Grønnsaker: 'lightgreen'
-  }
-
+  
 
   return (
     <View style={stil.kjøleskap}>
       {localDisplay.map((kategori, kategoriIndeks) => (
-        <View key={kategori.kategori} style={[stil.kjøleskapsHylle, { backgroundColor: kategoriBakgrunnsFarge[kategori.kategori] }]}>
-          <Text style={stil.kategoriNamn}>{kategori.kategori}</Text>
+        <View key={kategori.kategori} style={[stil.kjøleskapsHylle, { backgroundColor: kategori.bakgrunsFarge }]}>
+          <View style={stil.tittelRad}>
+            <Text style={stil.kategoriNamn}>{kategori.kategori}</Text>
+            <TouchableOpacity style={stil.slettKategori}>
+              <Text style={stil.slettKategori}>X</Text>
+            </TouchableOpacity>
+          </View>
           <View key={kategori.kategori} style={stil.infoRad}>
             <View style={stil.produktKolonne}>
               <Text style={stil.infoText}>Produkt</Text>
               {kategori.produkt.map((produkt) => (
-                <Text key={produkt.produktNamn}>{produkt.produktNamn}</Text>
+                <Text style={stil.produktText} key={produkt.produktNamn}>{produkt.produktNamn}</Text>
               ))}
             </View>
             <View style={stil.produktKolonne}>
               <Text style={stil.infoText}>Antall</Text>
               {kategori.produkt.map((produkt) => (
-                <Text key={produkt.produktNamn}>{produkt.produktAntall}</Text>
+                <Text style={stil.produktText} key={produkt.produktNamn}>{produkt.produktAntall}</Text>
               ))}
             </View>
             <View style={stil.produktKolonne}>
               <Text style={stil.infoText}>Utløpsdato</Text>
               {kategori.produkt.map((produkt) => (
-                <Text key={produkt.produktNamn}>{produkt.utløpsdato}</Text>
+                <Text style={stil.produktText} key={produkt.produktNamn}>{produkt.utløpsdato}</Text>
               ))}
             </View>
             <View  style={stil.produktKolonne}>
               {kategori.produkt.map((produkt, produktIndeks) => (
                 <View key={produkt.produktNamn}>
-                  <TouchableOpacity style={stil.knapp}>
-                    <Button
-                      title="edit"
-                    />
-                    <Button title="slett" onPress={() => slettProdukt(kategoriIndeks, produktIndeks)}/>
+                  <TouchableOpacity style={stil.knapp} onPress={() => slettProdukt(kategoriIndeks, produktIndeks)}>
+                  <Image source={SøppelIcon} style={{ width: 20, height: 20 }} />
                   </TouchableOpacity>
                 </View>
                ))}
@@ -84,6 +84,10 @@ export function RenderKjøleskap({ kjøleskapDisplay, oppdaterNotifikasjoner }) 
           </View>
         </View>
       ))}
+      <LeggTilKategori 
+        setLagraKjøleskap={setLagraKjøleskap}
+        setLocalDisplay={setLocalDisplay}
+      />
     </View>
   );
 }
@@ -97,14 +101,20 @@ const stil = StyleSheet.create({
   kjøleskapsHylle: {
     flexDirection: 'column',
     textAlign: 'left',
-    padding: 5,
+    padding: 10,
     margin: 2,
     borderRadius: 20,
+  },
+
+  tittelRad: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 
   infoRad: {
     flexDirection: 'row',
     paddingBottom: 10,
+    justifyContent: 'space-between',
   },
 
   produktKolonne: {
@@ -114,17 +124,37 @@ const stil = StyleSheet.create({
     alignItems: 'center'
   },
 
+  slettKategori: {
+    fontSize: 15
+  },
+
+
   knapp: {
-    flexDirection: 'row'
+    flexDirection: 'row',
+    height: 40,
+    margin: 0,
+    padding: 0,
+    alignContent: 'center',
+    alignItems: 'center',
+    paddingTop: 12
   },
 
   kategoriNamn: {
     fontWeight: 'bold',
-    fontSize: 18
+    fontSize: 18,
   },
 
   infoText: {
     fontWeight: 'bold',
-    fontSize: 14
-  }
+    fontSize: 16,
+    
+  },
+
+  produktText: {
+    fontSize: 16,
+    alignContent: 'center',
+    paddingBottom: 10
+  },
+
+  
 });

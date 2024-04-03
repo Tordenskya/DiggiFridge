@@ -13,9 +13,9 @@ export const useKjøleskap = () => {
                     setKjøleskap(lagraKjøleskap);
                 } else {
                     setKjøleskap([
-                        { kategori: 'Pålegg', antall: 0, produkt: [] },
-                        { kategori: 'Kjøtt-Fisk', antall: 0, produkt: [] },
-                        { kategori: 'Grønnsaker', antall: 0, produkt: [] },  
+                        { kategori: 'Pålegg', antall: 0, produkt: [], bakgrunnsFarge: 'lightyellow'},
+                        { kategori: 'Kjøtt-Fisk', antall: 0, produkt: [], bakgrunnsFarge: 'lightpink'},
+                        { kategori: 'Grønnsaker', antall: 0, produkt: [], bakgrunnsFarge: 'lightgreen'},  
                     ]);
                     console.log('Lagd nytt kjøleskap');
                 }
@@ -57,17 +57,17 @@ export function FlyttTilKjøleskap({handleliste, kjøleskap, oppdaterNotifikasjo
                     kjøleskap[i].antall++;
                   } else {
                     if(unikeUtløpsdatoer.length === 0){
-                        unikeUtløpsdatoer.push(handleliste[h].utløpsdato);
+                        unikeUtløpsdatoer.push(handleliste[h].uformatertUtløpsdato);
                         console.log('første unike utløpsdato');
                     } else {
                         let utløpsdatoLagretFraFør = true;
                         for(let u = 0; u < unikeUtløpsdatoer.length; u++){
-                            if(!unikeUtløpsdatoer[u].match(handleliste[h].utløpsdato)){
+                            if(!unikeUtløpsdatoer[u].match(handleliste[h].uformatertUtløpsdato)){
                                 !utløpsdatoLagretFraFør;
                             }
                         }
                         if(!utløpsdatoLagretFraFør){
-                            unikeUtløpsdatoer.push(handleliste[h].utløpsdato);
+                            unikeUtløpsdatoer.push(handleliste[h].uformatertUtløpsdato);
                             console.log('Ny unik utløpsdato');
                         }
                     }
@@ -76,7 +76,8 @@ export function FlyttTilKjøleskap({handleliste, kjøleskap, oppdaterNotifikasjo
                     kjøleskap[i].produkt.push({
                       produktNamn: handleliste[h].produktNamn,
                       produktAntall: parseInt(handleliste[h].produktAntall, 10),
-                      utløpsdato: handleliste[h].utløpsdato
+                      utløpsdato: handleliste[h].utløpsdato,
+                      uformatertUtløpsdato: handleliste[h].uformatertUtløpsdato,
                  })
                 }
             }

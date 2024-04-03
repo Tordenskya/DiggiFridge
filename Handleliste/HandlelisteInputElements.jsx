@@ -3,7 +3,8 @@ import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React from 'react';
 import { FlyttTilKjøleskap, useKjøleskap } from '../Kjøleskap/KjøleskapTabell';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import SøppelIcon from '../assets/trash-can-10416.png';
 import { useEffect } from 'react';
 import Checkbox from 'expo-checkbox';
 import { hentLagraHandleliste, setLagraHandleliste } from './HandlelisteLagring';
@@ -38,6 +39,7 @@ export function RenderHandleliste({setKjøleskapDisplay, oppdaterNotifikasjoner,
     const nyUtløpsdato = event.nativeEvent.timestamp;
 
     handleliste[indeks].utløpsdato = new Date(nyUtløpsdato).toLocaleDateString();
+    handleliste[indeks].uformatertUtløpsdato = new Date(nyUtløpsdato).toISOString().split('T')[0];
     setVisDatePicker(false);
   }
 
@@ -101,6 +103,11 @@ export function RenderHandleliste({setKjøleskapDisplay, oppdaterNotifikasjoner,
     <View>
       {handlelisteDisplay.map((produkt, i) => (
         <View key={i} style={styles.punkt}>
+
+
+          <TouchableOpacity onPress={() => DeleteProdukt(i)}>
+            <Image source={SøppelIcon} style={{ width: 20, height: 20 }} />
+          </TouchableOpacity>
           
           <Text style={{ fontSize: 16 }}>{`${produkt.produktNamn} - ${produkt.produktAntall}`}</Text>
 
@@ -108,10 +115,6 @@ export function RenderHandleliste({setKjøleskapDisplay, oppdaterNotifikasjoner,
             <DateTimePicker display="spinner" value={new Date()} onChange={(event) => HondterUtløpsdatoForandring(event, i)}/>
           )}
 
-          <Button
-            title="Slett"
-            onPress={() => DeleteProdukt(i)}
-          />
 
           <Checkbox
             value={produkt.checked}
@@ -172,6 +175,7 @@ export function HandleListeInputElements({setHandleliste}) {
           produktAntall: produktAntallInput,
           checked: false,
           utløpsdato: '',
+          uformatertUtløpsdato: '',
         });
         setLagraHandleliste(nyHandleliste);
         console.log('Nytt produkt lagret i handleliste');
@@ -190,7 +194,7 @@ export function HandleListeInputElements({setHandleliste}) {
         <Picker
           selectedValue={valgtKategori}
           onValueChange={(itemValue) => hondterKategoriForandring(itemValue)}
-          style={{ height: 50, width: 200 }}
+          style={{ height: 50, width: 200, textAlign: 'center', alignItems: 'center'}}
         >
           {kjøleskap.map((kategori) => (
             <Picker.Item
@@ -203,14 +207,14 @@ export function HandleListeInputElements({setHandleliste}) {
       )}
 
       <TextInput
-        style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }}
+        style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, textAlign: 'center' }}
         value={produktNamnInput}
         onChangeText={(text) => hondterProduktNamnForandring(text)}
         placeholder="Produkt Navn"
       />
 
       <TextInput
-        style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }}
+        style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, textAlign: 'center' }}
         value={produktAntallInput}
         onChangeText={(text) => hondterProduktAntallForandring(text)}
         placeholder="Produkt Antall"
@@ -239,5 +243,6 @@ export function HandleListeInputElements({setHandleliste}) {
       },
       knappTekst: {
         fontSize: 20,
-      }
+      },
+    
   });
