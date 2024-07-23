@@ -5,11 +5,12 @@ import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
-import { RenderHandleliste, HandleListeInputElements } from "./Handleliste/HandlelisteInputElements";
-import { useKjøleskap } from './Kjøleskap/KjøleskapTabell';
-import { RenderKjøleskap } from "./Kjøleskap/KjøleskapDisplay";
-import {useHandleliste} from './Handleliste/Handleliste'
-import { hentLagraNotifikasjonsIdTabell, setLagraNotifikasjonsIdTabell } from './Kjøleskap/notifikasjonsDataLagring';
+import { HandleListeInputElements } from "./Componenter/HandlelisteInputElements"
+import { RenderHandleliste } from "./Componenter/RenderHandleliste";
+import { useKjøleskap } from './Componenter/KjøleskapTabell';
+import { RenderKjøleskap } from './Componenter/KjøleskapDisplay';
+import { useHandleliste } from './Tabeller/Handleliste';
+import { hentLagraNotifikasjonsIdTabell, setLagraNotifikasjonsIdTabell } from "./LocalStorage/notifikasjonsDataLagring"
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({

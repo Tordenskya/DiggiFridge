@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { hentLagraKjøleskap, setLagraKjøleskap } from './KjøleskapLagring';
+import { hentLagraKjøleskap, setLagraKjøleskap } from '../LocalStorage/KjøleskapLagring';
 
 //Henter data frå kjøleskap som er lagret med async storage eller lager nytt kjøleskap
 export const useKjøleskap = () => {

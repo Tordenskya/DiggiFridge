@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { hentLagraHandleliste, setLagraHandleliste } from "./HandlelisteLagring";
+import { hentLagraHandleliste, setLagraHandleliste } from "../LocalStorage/HandlelisteLagring";
 
 export const useHandleliste = () => {
     const [handleliste, setHandleliste] = useState([]);

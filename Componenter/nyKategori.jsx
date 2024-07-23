@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Modal, TextInput, Button, StyleSheet } from 'react-native';
-import { fargeVelger } from './FargeVelger';
 
  export function LeggTilKategori({setLagraKjøleskap, setLocalDisplay}){
     const [visLeggTilNyKategori, setVisLeggTilNyKategori] = useState(false);
@@ -138,8 +137,8 @@ const stil = StyleSheet.create ({
         fontSize: 20
       },
       fargeValgCircle: {
-        width: 40, // Adjust according to your preference
-        height: 40, // Adjust according to your preference
-        borderRadius: 20, // Half of the width/height to make it a circle
+        width: 40, 
+        height: 40, 
+        borderRadius: 20,
     }
 })

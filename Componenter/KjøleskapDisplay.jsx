@@ -2,10 +2,10 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Button, Modal, TextInp
 import { Ionicons } from '@expo/vector-icons';
 import SøppelIcon from '../assets/trash-can-10416.png';
 import { useEffect } from "react";
-import { hentLagraKjøleskap, setLagraKjøleskap } from "./KjøleskapLagring";
+import { hentLagraKjøleskap, setLagraKjøleskap } from "../LocalStorage/KjøleskapLagring";
 import { LeggTilKategori } from "./nyKategori";
 import { useState } from "react";
-import { useKjøleskap } from "./KjøleskapTabell";
+import { useKjøleskap } from './KjøleskapTabell';
 
 export function RenderKjøleskap({ kjøleskapDisplay, oppdaterNotifikasjoner }) {
   const [localDisplay, setLocalDisplay] = useState(kjøleskapDisplay);
@@ -13,7 +13,7 @@ export function RenderKjøleskap({ kjøleskapDisplay, oppdaterNotifikasjoner }) 
 
   //Sletter produkter frå display, async storage og notifikasjoner
   const slettProdukt = (kategoriIndeks, produktIndeks) => {
-    const utløpsdatoTilSletting = kjøleskap[kategoriIndeks].produkt[produktIndeks].uformaterUtløpsdato
+    const utløpsdatoTilSletting = kjøleskap[kategoriIndeks].produkt[produktIndeks].uformaterUtløpsdato;
 
     setLocalDisplay((kjøleskap) => {
       const nyttKjøleskap = [...kjøleskap];

@@ -15,7 +15,7 @@
     "@react-native-picker/picker": "2.6.1",
     "@react-navigation/native": "^6.1.12",
     "@react-navigation/native-stack": "^6.9.20",
-    "expo": "~50.0.14",
+    "expo": "^51.0.20",
     "expo-checkbox": "~2.7.0",
     "expo-device": "^5.9.3",
     "expo-font": "~11.10.3",
