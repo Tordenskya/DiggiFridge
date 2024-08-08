@@ -1,36 +1,7 @@
-import { useState, useEffect } from 'react';
-import { hentLagraKjøleskap, setLagraKjøleskap } from '../LocalStorage/KjøleskapLagring';
-
-//Henter data frå kjøleskap som er lagret med async storage eller lager nytt kjøleskap
-export const useKjøleskap = () => {
-    const [kjøleskap, setKjøleskap] = useState([]);
-    
-    useEffect(() => {
-        const hentData = async () => {
-            try {
-                const lagraKjøleskap = await hentLagraKjøleskap();
-                if(lagraKjøleskap != null){
-                    setKjøleskap(lagraKjøleskap);
-                } else {
-                    setKjøleskap([
-                        { kategori: 'Pålegg', antall: 0, produkt: [], bakgrunnsFarge: 'lightyellow'},
-                        { kategori: 'Kjøtt-Fisk', antall: 0, produkt: [], bakgrunnsFarge: 'lightpink'},
-                        { kategori: 'Grønnsaker', antall: 0, produkt: [], bakgrunnsFarge: 'lightgreen'},  
-                    ]);
-                    console.log('Lagd nytt kjøleskap');
-                }
-            } catch (error) {
-                console.error('Error henting av Kjøleskap data', error);
-            }
-        };
-        hentData();
-    }, []);
-
-    return kjøleskap;
-}
+import { setLagraKjøleskap } from '../LocalStorage/KjøleskapLagring';
 
 //Tar data frå handlelista og oppdaterer kjøleskapet og sender info til å lage notifikasjoner
-export function FlyttTilKjøleskap({handleliste, kjøleskap, oppdaterNotifikasjoner }) {
+export function FlyttTilKjøleskap({handleliste, kjøleskap, oppdaterNotifikasjoner, planlagdNotifikasjon, setPlanlagdNotifikasjon }) {
     console.log('Flytt til kjøleskap starta');
     let unikeUtløpsdatoer = [];
 
@@ -87,7 +58,7 @@ export function FlyttTilKjøleskap({handleliste, kjøleskap, oppdaterNotifikasjo
     console.log('Set lagra kjøleskap');
     console.log('Oppdaterer notifikasjoner');
     for(let i = 0; i < unikeUtløpsdatoer.length; i++){
-        oppdaterNotifikasjoner(kjøleskap, unikeUtløpsdatoer[i]);
+        oppdaterNotifikasjoner(kjøleskap, unikeUtløpsdatoer[i], planlagdNotifikasjon, setPlanlagdNotifikasjon);
     }
     setLagraKjøleskap(kjøleskap);
     console.log(kjøleskap);

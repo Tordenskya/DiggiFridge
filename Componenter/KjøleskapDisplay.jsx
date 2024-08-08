@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { hentLagraKjøleskap, setLagraKjøleskap } from "../LocalStorage/KjøleskapLagring";
 import { LeggTilKategori } from "./nyKategori";
 import { useState } from "react";
-import { useKjøleskap } from './KjøleskapTabell';
+import { useKjøleskap } from '../Tabeller/KjoleskapTabell';
 
 export function RenderKjøleskap({ kjøleskapDisplay, oppdaterNotifikasjoner }) {
   const [localDisplay, setLocalDisplay] = useState(kjøleskapDisplay);

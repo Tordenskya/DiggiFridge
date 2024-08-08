@@ -1,11 +1,11 @@
 import { useState} from 'react';
 import { Picker } from '@react-native-picker/picker';  
 import React from 'react';
-import { useKjøleskap } from './KjøleskapTabell';
+import { useKjøleskap } from '../Tabeller/KjoleskapTabell';
 import { View, TextInput, Button, StyleSheet} from 'react-native';
 import { useEffect } from 'react';
 import { useHandleliste } from '../Tabeller/Handleliste';
-import { hentLagraHandleliste, setLagraHandleliste } from '../LocalStorage/HandlelisteLagring';
+import { setLagraHandleliste } from '../LocalStorage/HandlelisteLagring';
 
 
 

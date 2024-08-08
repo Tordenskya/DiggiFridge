@@ -1,23 +1,26 @@
 import { useState} from 'react';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React from 'react';
-import { FlyttTilKjøleskap, useKjøleskap } from './KjøleskapTabell';
+import { useKjøleskap } from '../Tabeller/KjoleskapTabell';
+import { FlyttTilKjøleskap } from './FlyttTilKjoleskap';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import SøppelIcon from '../assets/trash-can-10416.png';
 import { useEffect } from 'react';
 import Checkbox from 'expo-checkbox';
 import { hentLagraHandleliste, setLagraHandleliste } from '../LocalStorage/HandlelisteLagring';
-import { useHandleliste } from '../Tabeller/Handleliste';
 
 
 
 //Viser fram handlelista
-export function RenderHandleliste({setKjøleskapDisplay, oppdaterNotifikasjoner, setHandleliste}) {
+export function RenderHandleliste({setKjøleskapDisplay, oppdaterNotifikasjoner, setHandleliste, handleliste, planlagdNotifikasjon, setPlanlagdNotifikasjon}) {
     const kjøleskap = useKjøleskap();
-    const handleliste = useHandleliste();
     const [handlelisteDisplay, setHandlelisteDisplay] = useState(handleliste);
     const [visDatePicker, setVisDatePicker] = useState(false);
     const [checkedProdukt, setCheckedProdukt] = useState([]);
+
+    useEffect(() => {
+      setHandlelisteDisplay(handleliste);
+    }, [handleliste]);
   
     //Når ein checkbox blir checked viser den fram ein kalender for å legge inn utløpsdato data
     const HondterCheckBoxForandring = (indeks) => {
@@ -65,7 +68,7 @@ export function RenderHandleliste({setKjøleskapDisplay, oppdaterNotifikasjoner,
       if(handleliste.length > 0) {
         console.log('Flytt til kjøleskap');
         setLagraHandleliste([]);
-        setKjøleskapDisplay(FlyttTilKjøleskap({ handleliste, kjøleskap, oppdaterNotifikasjoner }));
+        setKjøleskapDisplay(FlyttTilKjøleskap({ handleliste, kjøleskap, oppdaterNotifikasjoner, planlagdNotifikasjon, setPlanlagdNotifikasjon}));
       }
       setCheckedProdukt([]);
       console.log(handleliste);
